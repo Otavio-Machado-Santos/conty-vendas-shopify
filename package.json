@@ -1,0 +1,13 @@
+{
+  "name": "conty-vendas-shopify",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ingestão idempotente de vendas e estornos com atribuição auditável ao criador",
+  "engines": { "node": ">=22 <23" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test",
+    "demo": "node scripts/demo.js"
+  }
+}
