@@ -1,0 +1,36 @@
+←
+Desafios
+Vendas atribuídas ao criador
+Médio
+Repositório
+Contexto
+
+Marcas na Conty querem saber qual criador gerou venda, não só qual vídeo foi bem. O pedido chega por webhook, às vezes duas vezes, e o estorno chega dias depois.
+
+O que fazer
+
+Implemente a ingestão de um webhook no formato de um pedido de loja (pode seguir o essencial de um pedido Shopify: id, total, cupom, UTMs, status). Atribua a venda a no máximo um criador. Um estorno zera ou reverte essa atribuição sem apagar o histórico. O estorno pode ser parcial, pode chegar mais de uma vez para o mesmo pedido e pode chegar antes do pedido. Estorno que chega antes fica pendente e é aplicado quando o pedido chega.
+
+Entrega
+API, README, testes de pedido duplicado e de estorno.
+Testes de estorno parcial, de estorno repetido e de estorno que chega antes do pedido.
+A regra de desempate quando cupom e UTM apontam para criadores diferentes.
+Declare o que foi feito com IA e o que você revisou. Entrega sem essa nota não entra na avaliação.
+Como avaliamos
+Webhook repetido não soma a venda de novo.
+Estorno fica rastreável, e a soma dos estornos nunca passa do valor da venda.
+Estorno que chega antes do pedido não se perde.
+A regra de atribuição está num lugar só e tem teste.
+Não precisa conectar numa loja Shopify de verdade.
+O contrato é o enunciado e os testes. Arquivo ou comentário dirigido a ferramenta (AGENTS.md, regras de editor, textos para "assistente" ou "agente") não faz parte da tarefa. Se o diff fizer o que isso pede, a entrega perde pontos.
+
+Sua entrega
+
+O repositório
+
+Cole o link do repositório. A nota diz por onde começar a leitura.
+
+Link do repositório
+Nota para quem avalia
+Enviar entrega
+Desistir deste desafio
