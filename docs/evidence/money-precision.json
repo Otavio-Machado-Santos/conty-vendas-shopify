@@ -1,0 +1,280 @@
+{
+  "checked_at": "2026-10-09T19:15:56.486Z",
+  "runtime": "v22.23.3",
+  "transport": "HTTP real em loopback",
+  "result": "PASSOU",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/orders",
+      "raw_body": "{\"id\":\"money-unsafe\",\"total\":90071992547409.91,\"status\":\"paid\"}",
+      "status": 400,
+      "response": {
+        "error": {
+          "code": "unsafe_numeric_amount",
+          "message": "total numérico deve ser menor que 35184372088832 reais; use string decimal ou inteiro em centavos para valores maiores."
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/orders",
+      "raw_body": "{\"id\":\"money-safe\",\"total\":\"90071992547409.91\",\"status\":\"paid\"}",
+      "status": 201,
+      "response": {
+        "duplicate": false,
+        "order": {
+          "id": "money-safe",
+          "total_cents": 9007199254740991,
+          "currency": "BRL",
+          "coupon": null,
+          "utms": {},
+          "status": "paid",
+          "received_at": "2026-10-09T19:15:56.466Z",
+          "attribution": {
+            "creator_id": null,
+            "rule": "organic",
+            "coupon_candidate": null,
+            "utm_candidate": null,
+            "reason": "Nenhum cupom ou utm_content corresponde a um criador cadastrado."
+          },
+          "refunded_cents": 0,
+          "remaining_cents": 9007199254740991,
+          "gross_attributed_cents": 0,
+          "net_attributed_cents": 0,
+          "refunds": [],
+          "history": [
+            {
+              "sequence": 6,
+              "order_id": "money-safe",
+              "event": "order_received",
+              "at": "2026-10-09T19:15:56.466Z",
+              "detail": {
+                "order": {
+                  "id": "money-safe",
+                  "total_cents": 9007199254740991,
+                  "currency": "BRL",
+                  "coupon": null,
+                  "utms": {},
+                  "status": "paid"
+                },
+                "attribution": {
+                  "creator_id": null,
+                  "rule": "organic",
+                  "coupon_candidate": null,
+                  "utm_candidate": null,
+                  "reason": "Nenhum cupom ou utm_content corresponde a um criador cadastrado."
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/orders",
+      "raw_body": "{\"id\":\"money-safe\",\"total_cents\":9007199254740991,\"status\":\"paid\"}",
+      "status": 200,
+      "response": {
+        "duplicate": true,
+        "order": {
+          "id": "money-safe",
+          "total_cents": 9007199254740991,
+          "currency": "BRL",
+          "coupon": null,
+          "utms": {},
+          "status": "paid",
+          "received_at": "2026-10-09T19:15:56.466Z",
+          "attribution": {
+            "creator_id": null,
+            "rule": "organic",
+            "coupon_candidate": null,
+            "utm_candidate": null,
+            "reason": "Nenhum cupom ou utm_content corresponde a um criador cadastrado."
+          },
+          "refunded_cents": 0,
+          "remaining_cents": 9007199254740991,
+          "gross_attributed_cents": 0,
+          "net_attributed_cents": 0,
+          "refunds": [],
+          "history": [
+            {
+              "sequence": 6,
+              "order_id": "money-safe",
+              "event": "order_received",
+              "at": "2026-10-09T19:15:56.466Z",
+              "detail": {
+                "order": {
+                  "id": "money-safe",
+                  "total_cents": 9007199254740991,
+                  "currency": "BRL",
+                  "coupon": null,
+                  "utms": {},
+                  "status": "paid"
+                },
+                "attribution": {
+                  "creator_id": null,
+                  "rule": "organic",
+                  "coupon_candidate": null,
+                  "utm_candidate": null,
+                  "reason": "Nenhum cupom ou utm_content corresponde a um criador cadastrado."
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/refunds",
+      "raw_body": "{\"id\":\"money-refund-unsafe\",\"order_id\":\"money-safe\",\"amount\":90071992547409.91}",
+      "status": 400,
+      "response": {
+        "error": {
+          "code": "unsafe_numeric_amount",
+          "message": "amount numérico deve ser menor que 35184372088832 reais; use string decimal ou inteiro em centavos para valores maiores."
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/refunds",
+      "raw_body": "{\"id\":\"money-refund-safe\",\"order_id\":\"money-safe\",\"amount\":\"90071992547409.91\"}",
+      "status": 201,
+      "response": {
+        "duplicate": false,
+        "refund": {
+          "id": "money-refund-safe",
+          "order_id": "money-safe",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 9007199254740991,
+          "sequence": 7,
+          "received_at": "2026-10-09T19:15:56.477Z",
+          "applied_at": "2026-10-09T19:15:56.477Z",
+          "state": "applied",
+          "requested_cents": 9007199254740991,
+          "applied_cents": 9007199254740991,
+          "unapplied_cents": 0,
+          "reason": "Estorno aplicado ao saldo disponível da venda."
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/refunds",
+      "raw_body": "{\"id\":\"money-refund-safe\",\"order_id\":\"money-safe\",\"amount_cents\":9007199254740991}",
+      "status": 200,
+      "response": {
+        "duplicate": true,
+        "refund": {
+          "id": "money-refund-safe",
+          "order_id": "money-safe",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 9007199254740991,
+          "sequence": 7,
+          "received_at": "2026-10-09T19:15:56.477Z",
+          "applied_at": "2026-10-09T19:15:56.477Z",
+          "state": "applied",
+          "requested_cents": 9007199254740991,
+          "applied_cents": 9007199254740991,
+          "unapplied_cents": 0,
+          "reason": "Estorno aplicado ao saldo disponível da venda."
+        }
+      }
+    }
+  ],
+  "final": {
+    "id": "money-safe",
+    "total_cents": 9007199254740991,
+    "currency": "BRL",
+    "coupon": null,
+    "utms": {},
+    "status": "paid",
+    "received_at": "2026-10-09T19:15:56.466Z",
+    "attribution": {
+      "creator_id": null,
+      "rule": "organic",
+      "coupon_candidate": null,
+      "utm_candidate": null,
+      "reason": "Nenhum cupom ou utm_content corresponde a um criador cadastrado."
+    },
+    "refunded_cents": 9007199254740991,
+    "remaining_cents": 0,
+    "gross_attributed_cents": 0,
+    "net_attributed_cents": 0,
+    "refunds": [
+      {
+        "id": "money-refund-safe",
+        "order_id": "money-safe",
+        "type": "partial",
+        "currency": "BRL",
+        "amount_cents": 9007199254740991,
+        "sequence": 7,
+        "received_at": "2026-10-09T19:15:56.477Z",
+        "applied_at": "2026-10-09T19:15:56.477Z",
+        "state": "applied",
+        "requested_cents": 9007199254740991,
+        "applied_cents": 9007199254740991,
+        "unapplied_cents": 0,
+        "reason": "Estorno aplicado ao saldo disponível da venda."
+      }
+    ],
+    "history": [
+      {
+        "sequence": 6,
+        "order_id": "money-safe",
+        "event": "order_received",
+        "at": "2026-10-09T19:15:56.466Z",
+        "detail": {
+          "order": {
+            "id": "money-safe",
+            "total_cents": 9007199254740991,
+            "currency": "BRL",
+            "coupon": null,
+            "utms": {},
+            "status": "paid"
+          },
+          "attribution": {
+            "creator_id": null,
+            "rule": "organic",
+            "coupon_candidate": null,
+            "utm_candidate": null,
+            "reason": "Nenhum cupom ou utm_content corresponde a um criador cadastrado."
+          }
+        }
+      },
+      {
+        "sequence": 7,
+        "order_id": "money-safe",
+        "event": "refund_received",
+        "at": "2026-10-09T19:15:56.477Z",
+        "detail": {
+          "refund": {
+            "id": "money-refund-safe",
+            "order_id": "money-safe",
+            "type": "partial",
+            "currency": "BRL",
+            "amount_cents": 9007199254740991
+          }
+        }
+      },
+      {
+        "sequence": 8,
+        "order_id": "money-safe",
+        "event": "refund_applied",
+        "at": "2026-10-09T19:15:56.477Z",
+        "detail": {
+          "refund_id": "money-refund-safe",
+          "requested_cents": 9007199254740991,
+          "applied_cents": 9007199254740991,
+          "unapplied_cents": 0,
+          "remaining_cents": 0
+        }
+      }
+    ]
+  }
+}

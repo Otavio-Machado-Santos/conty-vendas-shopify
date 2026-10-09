@@ -98,3 +98,37 @@ test('HTTP falha de persistência responde 500 sem creditar pedido', async (t) =
   assert.equal((await request('/orders/x')).status, 404);
   assert.equal(errors.length, 1);
 });
+
+test('HTTP literal decimal grande é rejeitado; string e inteiro em centavos são exatos e equivalentes', async (t) => {
+  const { url, request } = await server(t);
+  async function raw(path, body) {
+    const response = await fetch(url + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+    return { status: response.status, body: await response.json() };
+  }
+  const unsafeOrder = await raw('/orders', '{"id":"unsafe-order","total":90071992547409.91,"status":"paid","coupon":"ANA10"}');
+  assert.equal(unsafeOrder.status, 400);
+  assert.equal(unsafeOrder.body.error.code, 'unsafe_numeric_amount');
+  assert.match(unsafeOrder.body.error.message, /string decimal ou inteiro em centavos/);
+  assert.equal((await request('/orders/unsafe-order')).status, 404);
+
+  const safeOrder = await raw('/orders', '{"id":"safe-order","total":"90071992547409.91","status":"paid","coupon":"ANA10"}');
+  assert.equal(safeOrder.status, 201);
+  assert.equal(safeOrder.body.order.total_cents, 9007199254740991);
+  const integerOrder = await raw('/orders', '{"id":"safe-order","total_cents":9007199254740991,"status":"paid","coupon":"ANA10"}');
+  assert.equal(integerOrder.status, 200);
+  assert.equal(integerOrder.body.duplicate, true);
+
+  const unsafeRefund = await raw('/refunds', '{"id":"unsafe-refund","order_id":"safe-order","amount":90071992547409.91}');
+  assert.equal(unsafeRefund.status, 400);
+  assert.equal(unsafeRefund.body.error.code, 'unsafe_numeric_amount');
+  assert.equal((await request('/refunds/unsafe-refund')).status, 404);
+  assert.equal((await request('/orders/safe-order')).body.refunded_cents, 0);
+
+  const safeRefund = await raw('/refunds', '{"id":"safe-refund","order_id":"safe-order","amount":"90071992547409.91"}');
+  assert.equal(safeRefund.status, 201);
+  assert.equal(safeRefund.body.refund.applied_cents, 9007199254740991);
+  const integerRefund = await raw('/refunds', '{"id":"safe-refund","order_id":"safe-order","amount_cents":9007199254740991}');
+  assert.equal(integerRefund.status, 200);
+  assert.equal(integerRefund.body.duplicate, true);
+  assert.equal((await request('/orders/safe-order')).body.net_attributed_cents, 0);
+});

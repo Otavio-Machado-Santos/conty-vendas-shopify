@@ -6,165 +6,177 @@ TAP version 13
 # Subtest: fluxo HTTP real: pendência, pedido, duplicados, estorno full e consulta auditável
 ok 1 - fluxo HTTP real: pendência, pedido, duplicados, estorno full e consulta auditável
   ---
-  duration_ms: 48.597625
+  duration_ms: 79.087625
   type: 'test'
   ...
 # Subtest: HTTP erros de contrato, conflitos, método e rotas são explícitos
 ok 2 - HTTP erros de contrato, conflitos, método e rotas são explícitos
   ---
-  duration_ms: 17.840333
+  duration_ms: 41.451208
   type: 'test'
   ...
 # Subtest: HTTP rejeita JSON inválido, media type e corpo acima do limite
 ok 3 - HTTP rejeita JSON inválido, media type e corpo acima do limite
   ---
-  duration_ms: 6.644208
+  duration_ms: 17.604042
   type: 'test'
   ...
 # Subtest: requisições concorrentes com mesmo ID mantêm uma única venda e único estorno
 ok 4 - requisições concorrentes com mesmo ID mantêm uma única venda e único estorno
   ---
-  duration_ms: 26.572167
+  duration_ms: 50.71375
   type: 'test'
   ...
 # Subtest: HTTP falha de persistência responde 500 sem creditar pedido
 ok 5 - HTTP falha de persistência responde 500 sem creditar pedido
   ---
-  duration_ms: 4.494041
+  duration_ms: 6.388417
+  type: 'test'
+  ...
+# Subtest: HTTP literal decimal grande é rejeitado; string e inteiro em centavos são exatos e equivalentes
+ok 6 - HTTP literal decimal grande é rejeitado; string e inteiro em centavos são exatos e equivalentes
+  ---
+  duration_ms: 10.891917
   type: 'test'
   ...
 # Subtest: cupom reconhecido vence UTM diferente, com ambos os candidatos auditáveis
-ok 6 - cupom reconhecido vence UTM diferente, com ambos os candidatos auditáveis
+ok 7 - cupom reconhecido vence UTM diferente, com ambos os candidatos auditáveis
   ---
-  duration_ms: 3.369833
+  duration_ms: 7.682292
   type: 'test'
   ...
 # Subtest: a política de atribuição isolada permite mappings substituíveis
-ok 7 - a política de atribuição isolada permite mappings substituíveis
+ok 8 - a política de atribuição isolada permite mappings substituíveis
   ---
-  duration_ms: 0.101416
+  duration_ms: 0.169709
   type: 'test'
   ...
 # Subtest: UTM conhecido atribui quando cupom ausente ou desconhecido; sem ambos é orgânico
-ok 8 - UTM conhecido atribui quando cupom ausente ou desconhecido; sem ambos é orgânico
+ok 9 - UTM conhecido atribui quando cupom ausente ou desconhecido; sem ambos é orgânico
   ---
-  duration_ms: 0.36125
+  duration_ms: 2.02875
   type: 'test'
   ...
 # Subtest: repetir pedido não duplica receita nem histórico; equivalência usa payload normalizado
-ok 9 - repetir pedido não duplica receita nem histórico; equivalência usa payload normalizado
+ok 10 - repetir pedido não duplica receita nem histórico; equivalência usa payload normalizado
   ---
-  duration_ms: 0.211375
+  duration_ms: 1.3305
   type: 'test'
   ...
 # Subtest: pedido com mesmo ID e outro total, status ou atribuição é conflito e não altera original
-ok 10 - pedido com mesmo ID e outro total, status ou atribuição é conflito e não altera original
+ok 11 - pedido com mesmo ID e outro total, status ou atribuição é conflito e não altera original
   ---
-  duration_ms: 0.361792
+  duration_ms: 1.598959
   type: 'test'
   ...
 # Subtest: estorno parcial reverte somente seu valor; repetição não estorna novamente
-ok 11 - estorno parcial reverte somente seu valor; repetição não estorna novamente
+ok 12 - estorno parcial reverte somente seu valor; repetição não estorna novamente
   ---
-  duration_ms: 0.605333
+  duration_ms: 1.296
   type: 'test'
   ...
 # Subtest: estorno completo após parcial zera atribuição sem apagar eventos anteriores
-ok 12 - estorno completo após parcial zera atribuição sem apagar eventos anteriores
+ok 13 - estorno completo após parcial zera atribuição sem apagar eventos anteriores
   ---
-  duration_ms: 0.662
+  duration_ms: 2.202208
   type: 'test'
   ...
 # Subtest: estorno anterior ao pedido fica pendente e é aplicado sem perder recebimento original
-ok 13 - estorno anterior ao pedido fica pendente e é aplicado sem perder recebimento original
+ok 14 - estorno anterior ao pedido fica pendente e é aplicado sem perder recebimento original
   ---
-  duration_ms: 0.765
+  duration_ms: 0.356
   type: 'test'
   ...
 # Subtest: estorno full antes do pedido consome o saldo quando pedido é conhecido
-ok 14 - estorno full antes do pedido consome o saldo quando pedido é conhecido
+ok 15 - estorno full antes do pedido consome o saldo quando pedido é conhecido
   ---
-  duration_ms: 0.877041
+  duration_ms: 0.486125
   type: 'test'
   ...
 # Subtest: múltiplos estornos pendentes são aplicados na ordem de chegada, mesmo com relógio empatado
-ok 15 - múltiplos estornos pendentes são aplicados na ordem de chegada, mesmo com relógio empatado
+ok 16 - múltiplos estornos pendentes são aplicados na ordem de chegada, mesmo com relógio empatado
   ---
-  duration_ms: 0.739083
+  duration_ms: 1.256333
   type: 'test'
   ...
 # Subtest: estorno excedente é limitado; novo estorno sobre saldo zerado registra aplicação zero
-ok 16 - estorno excedente é limitado; novo estorno sobre saldo zerado registra aplicação zero
+ok 17 - estorno excedente é limitado; novo estorno sobre saldo zerado registra aplicação zero
   ---
-  duration_ms: 0.269708
+  duration_ms: 1.920625
   type: 'test'
   ...
 # Subtest: ID de estorno não pode mudar pedido, valor ou tipo
-ok 17 - ID de estorno não pode mudar pedido, valor ou tipo
+ok 18 - ID de estorno não pode mudar pedido, valor ou tipo
   ---
-  duration_ms: 0.165042
+  duration_ms: 0.710291
   type: 'test'
   ...
 # Subtest: centavos são exatos, incluindo 0.29, limite seguro e somas que ultrapassam Number.MAX_SAFE_INTEGER
-ok 18 - centavos são exatos, incluindo 0.29, limite seguro e somas que ultrapassam Number.MAX_SAFE_INTEGER
+ok 19 - centavos são exatos, incluindo 0.29, limite seguro e somas que ultrapassam Number.MAX_SAFE_INTEGER
   ---
-  duration_ms: 0.215625
+  duration_ms: 1.044958
+  type: 'test'
+  ...
+# Subtest: decimal NUMBER exige margem IEEE-754; string e centavos preservam todo o intervalo seguro
+ok 20 - decimal NUMBER exige margem IEEE-754; string e centavos preservam todo o intervalo seguro
+  ---
+  duration_ms: 11.768583
   type: 'test'
   ...
 # Subtest: pagamento pending/cancelled não gera receita, mesmo com atribuição conhecida
-ok 19 - pagamento pending/cancelled não gera receita, mesmo com atribuição conhecida
+ok 21 - pagamento pending/cancelled não gera receita, mesmo com atribuição conhecida
   ---
-  duration_ms: 0.086833
+  duration_ms: 0.452125
   type: 'test'
   ...
 # Subtest: pedidos de dois criadores e orgânico preservam isolamento dos totais
-ok 20 - pedidos de dois criadores e orgânico preservam isolamento dos totais
+ok 22 - pedidos de dois criadores e orgânico preservam isolamento dos totais
   ---
-  duration_ms: 0.206292
+  duration_ms: 0.596792
   type: 'test'
   ...
 # Subtest: validações rejeitam dinheiro ambíguo, inválido, moeda/status/UTM/IDs inesperados sem mutação
-ok 21 - validações rejeitam dinheiro ambíguo, inválido, moeda/status/UTM/IDs inesperados sem mutação
+ok 23 - validações rejeitam dinheiro ambíguo, inválido, moeda/status/UTM/IDs inesperados sem mutação
   ---
-  duration_ms: 0.262584
+  duration_ms: 0.869709
   type: 'test'
   ...
 # Subtest: contrato total_cents e amount_cents dispensa decimal sem alterar cálculos
-ok 22 - contrato total_cents e amount_cents dispensa decimal sem alterar cálculos
+ok 24 - contrato total_cents e amount_cents dispensa decimal sem alterar cálculos
   ---
-  duration_ms: 0.439708
+  duration_ms: 0.193791
   type: 'test'
   ...
 # Subtest: arquivo persistente conserva pendências, idempotência e histórico após reinício
-ok 23 - arquivo persistente conserva pendências, idempotência e histórico após reinício
+ok 25 - arquivo persistente conserva pendências, idempotência e histórico após reinício
   ---
-  duration_ms: 9.49825
+  duration_ms: 14.508208
   type: 'test'
   ...
 # Subtest: arquivo corrompido falha fechado e nunca é substituído automaticamente
-ok 24 - arquivo corrompido falha fechado e nunca é substituído automaticamente
+ok 26 - arquivo corrompido falha fechado e nunca é substituído automaticamente
   ---
-  duration_ms: 1.762542
+  duration_ms: 7.306083
   type: 'test'
   ...
 # Subtest: falha ao persistir não publica estado parcialmente aplicado
-ok 25 - falha ao persistir não publica estado parcialmente aplicado
+ok 27 - falha ao persistir não publica estado parcialmente aplicado
   ---
-  duration_ms: 0.255875
+  duration_ms: 0.938334
   type: 'test'
   ...
 # Subtest: sequência determinística de muitos estornos sempre mantém 0 <= soma <= venda
-ok 26 - sequência determinística de muitos estornos sempre mantém 0 <= soma <= venda
+ok 28 - sequência determinística de muitos estornos sempre mantém 0 <= soma <= venda
   ---
-  duration_ms: 136.056083
+  duration_ms: 218.47375
   type: 'test'
   ...
-1..26
-# tests 26
+1..28
+# tests 28
 # suites 0
-# pass 26
+# pass 28
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 236.9235
+# duration_ms 444.584291

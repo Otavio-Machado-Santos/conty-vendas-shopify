@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { AttributionPolicy } from '../src/attribution.js';
 import { MemoryRepository, FileRepository } from '../src/repository.js';
 import { SalesService } from '../src/sales-service.js';
+import { normalizeOrder, NUMERIC_REAIS_LIMIT } from '../src/validation.js';
 
 const fixedClock = () => new Date('2026-10-09T20:00:00.000Z');
 const order = (overrides = {}) => ({ id: 'order-1', total: '150.00', currency: 'BRL', status: 'paid', coupon: 'ANA10', utms: { utm_content: 'bruno' }, ...overrides });
@@ -155,6 +156,25 @@ test('centavos são exatos, incluindo 0.29, limite seguro e somas que ultrapassa
   service.ingestOrder({ ...order({ id: 'big-1' }), total: '90071992547409.91' });
   service.ingestOrder({ ...order({ id: 'big-2' }), total: '90071992547409.91' });
   assert.equal(service.getCreatorSales('creator-ana').gross_cents, (2n * BigInt(Number.MAX_SAFE_INTEGER) + 29n).toString());
+});
+
+test('decimal NUMBER exige margem IEEE-754; string e centavos preservam todo o intervalo seguro', () => {
+  const service = makeService();
+  for (const total of [NUMERIC_REAIS_LIMIT, NUMERIC_REAIS_LIMIT + 1, 90071992547409.91]) {
+    assert.throws(() => service.ingestOrder(order({ total })), (error) => error.status === 400 && error.code === 'unsafe_numeric_amount');
+  }
+  assert.equal(service.ingestOrder(order({ total: NUMERIC_REAIS_LIMIT.toString() })).order.total_cents, 3518437208883200);
+  assert.throws(() => service.ingestRefund(partial({ amount: 90071992547409.91 })), (error) => error.code === 'unsafe_numeric_amount');
+  assert.equal(service.getOrder('order-1').refunded_cents, 0);
+
+  // Oracle em inteiros produz os lexemas recebidos, inclusive a borda abaixo do teto.
+  const ceilingCents = BigInt(NUMERIC_REAIS_LIMIT) * 100n;
+  for (let offset = 1n; offset <= 1000n; offset++) {
+    const expected = ceilingCents - offset;
+    const lexeme = `${expected / 100n}.${(expected % 100n).toString().padStart(2, '0')}`;
+    const parsed = JSON.parse(`{"id":"safe","total":${lexeme},"status":"paid"}`);
+    assert.equal(normalizeOrder(parsed).total_cents, Number(expected), lexeme);
+  }
 });
 
 test('pagamento pending/cancelled não gera receita, mesmo com atribuição conhecida', () => {

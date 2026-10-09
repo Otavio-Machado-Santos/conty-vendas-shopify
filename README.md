@@ -65,7 +65,11 @@ Trecho da resposta `201`:
 }
 ```
 
-`total` aceita decimal string ou número JSON com até duas casas; a alternativa `total_cents` recebe inteiro seguro. Informe exatamente um deles. A conversão usa representação decimal e `BigInt`, sem multiplicar float por 100. `currency` padrão `BRL`; outras moedas são rejeitadas para não misturar totais. `status` aceita `paid`, `pending`, `cancelled`; somente `paid` contribui para a receita atribuída. UTM aceita as chaves padrão `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`.
+`total` aceita decimal string ou número JSON com até duas casas; a alternativa `total_cents` recebe inteiro seguro. Informe exatamente um deles. Strings decimais aceitam até `"90071992547409.91"`, e centavos até `9007199254740991` (`Number.MAX_SAFE_INTEGER`). **Número decimal JSON deve ser menor que `2^45 = 35184372088832` reais**; a partir disso retorna `400 unsafe_numeric_amount` e exige string ou inteiro em centavos. A mesma regra vale para `amount` nos estornos.
+
+O limite numérico é conservador e deriva de IEEE-754 binary64: abaixo de `2^45`, o maior espaçamento entre números adjacentes (ULP) é `2^(44−52) = 1/256` de real, menor que meio centavo. No limite, ele dobra para `1/128`. Como `JSON.parse` já converte o número, tentar recuperar depois o lexema de um decimal grande perderia centavos. Para os números admitidos e strings, a conversão usa representação decimal e `BigInt`, sem multiplicar float por 100. Valores comuns como `0.29` permanecem aceitos e exatos; o literal numérico `90071992547409.91` é rejeitado, e a string equivalente preserva os `9007199254740991` centavos.
+
+`currency` padrão `BRL`; outras moedas são rejeitadas para não misturar totais. `status` aceita `paid`, `pending`, `cancelled`; somente `paid` contribui para a receita atribuída. UTM aceita as chaves padrão `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`.
 
 ### Estorno parcial e completo
 
@@ -100,6 +104,8 @@ Essa persistência foi escolhida para tornar a entrega executável sem infraestr
 
 ## Validação e IA
 
-`npm test` cobre duplicação, conflitos, cupom contra UTM, orgânico, precisão monetária, pagamento não confirmado, parcial/full, replay de estorno, chegada antes do pedido, ordenação de pendências, limite do saldo, concorrência HTTP, restart, arquivo corrompido, erro de disco e erros HTTP. O [log real da suíte](docs/evidence/test.txt) registra o resultado; a [demonstração HTTP](docs/evidence/demo.jsonl) registra respostas reais da execução local com dados fictícios.
+`npm test` cobre duplicação, conflitos, cupom contra UTM, orgânico, precisão monetária (incluindo os literais HTTP grandes, a alternativa string/centavos e 1.000 valores perto do limite numérico), pagamento não confirmado, parcial/full, replay de estorno, chegada antes do pedido, ordenação de pendências, limite do saldo, concorrência HTTP, restart, arquivo corrompido, erro de disco e erros HTTP. O [log real da suíte](docs/evidence/test.txt) registra o resultado; a [demonstração HTTP](docs/evidence/demo.jsonl) registra respostas reais da execução local com dados fictícios.
+
+A [verificação de precisão por HTTP](docs/evidence/money-precision.json) preserva os corpos literais recebidos e as seis respostas: rejeição do NUMBER grande no pedido/estorno, aceitação exata da string e replay equivalente em centavos. A revisão independente identificou essa perda potencial antes do envio, e a implementação passou a exigir uma representação segura nessa faixa.
 
 Implementação, testes, documentação e análise local foram feitos com IA Codex. Os testes foram executados em Node.js 22. A revisão por agentes independentes será registrada separadamente antes do envio; este texto não afirma revisão humana nem integração com uma loja real.

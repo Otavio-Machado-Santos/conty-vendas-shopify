@@ -1,6 +1,10 @@
 import { requireInput } from './errors.js';
 
 const MAX_CENTS = BigInt(Number.MAX_SAFE_INTEGER);
+// Abaixo de 2^45 reais, a maior ULP binary64 é 2^(44-52) = 1/256
+// de real, menor que meio centavo. No limite a ULP passa a 1/128:
+// exigimos string ou inteiro de centavos antes que o JSON perca precisão.
+export const NUMERIC_REAIS_LIMIT = 2 ** 45;
 const ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/;
 const UTM_KEYS = new Set(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']);
 
@@ -24,6 +28,7 @@ function cents(value, name, positive) {
 
 function decimal(value, name, positive) {
   requireInput(typeof value === 'string' || (typeof value === 'number' && Number.isFinite(value)), 'invalid_amount', `${name} deve ser um decimal em reais; prefira string.`);
+  requireInput(typeof value !== 'number' || value < NUMERIC_REAIS_LIMIT, 'unsafe_numeric_amount', `${name} numérico deve ser menor que ${NUMERIC_REAIS_LIMIT} reais; use string decimal ou inteiro em centavos para valores maiores.`);
   const match = /^(0|[1-9]\d*)(?:\.(\d{1,2}))?$/.exec(String(value));
   requireInput(Boolean(match), 'invalid_amount', `${name} aceita reais sem sinal e com até duas casas decimais.`);
   const result = BigInt(match[1]) * 100n + BigInt((match[2] ?? '').padEnd(2, '0'));
