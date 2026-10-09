@@ -1,0 +1,1190 @@
+{
+  "challenge": 5,
+  "started_at": "2026-10-09T19:42:35.594Z",
+  "finished_at": "2026-10-09T19:42:35.677Z",
+  "environment": "macOS, Node22, HTTP loopback, dados sintéticos",
+  "passed": true,
+  "steps": [
+    {
+      "label": "Guardar o total de Bruno antes da venda",
+      "method": "GET",
+      "path": "/creators/creator-bruno/sales",
+      "http_status": 200,
+      "response": {
+        "creator_id": "creator-bruno",
+        "currency": "BRL",
+        "order_count": 0,
+        "gross_cents": "0",
+        "refunded_cents": "0",
+        "net_cents": "0",
+        "orders": []
+      },
+      "checks": [
+        {
+          "field": "creator_id",
+          "expected": "creator-bruno",
+          "actual": "creator-bruno",
+          "passed": true
+        },
+        {
+          "field": "currency",
+          "expected": "BRL",
+          "actual": "BRL",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 12
+    },
+    {
+      "label": "Estorno parcial chega antes do pedido e fica pendente",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "amount": "30.10"
+      },
+      "http_status": 201,
+      "response": {
+        "duplicate": false,
+        "refund": {
+          "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 3010,
+          "sequence": 16,
+          "received_at": "2026-10-09T19:42:35.609Z",
+          "applied_at": null,
+          "state": "pending",
+          "requested_cents": 3010,
+          "applied_cents": 0,
+          "unapplied_cents": null,
+          "reason": "Pedido ainda não recebido; estorno preservado para aplicação posterior."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": false,
+          "actual": false,
+          "passed": true
+        },
+        {
+          "field": "refund.id",
+          "expected": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.order_id",
+          "expected": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.state",
+          "expected": "pending",
+          "actual": "pending",
+          "passed": true
+        },
+        {
+          "field": "refund.requested_cents",
+          "expected": 3010,
+          "actual": 3010,
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "refund.applied_at",
+          "expected": null,
+          "actual": null,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 10
+    },
+    {
+      "label": "Repetir o estorno pendente conserva o mesmo evento",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "amount": "30.10"
+      },
+      "http_status": 200,
+      "response": {
+        "duplicate": true,
+        "refund": {
+          "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 3010,
+          "sequence": 16,
+          "received_at": "2026-10-09T19:42:35.609Z",
+          "applied_at": null,
+          "state": "pending",
+          "requested_cents": 3010,
+          "applied_cents": 0,
+          "unapplied_cents": null,
+          "reason": "Pedido ainda não recebido; estorno preservado para aplicação posterior."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "field": "refund.id",
+          "expected": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.sequence",
+          "expected": 16,
+          "actual": 16,
+          "passed": true
+        },
+        {
+          "field": "refund.state",
+          "expected": "pending",
+          "actual": "pending",
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 5
+    },
+    {
+      "label": "Cupom Ana vence UTM Bruno; pendência reduz R$150 para R$119,90",
+      "method": "POST",
+      "path": "/orders",
+      "request": {
+        "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "total": "150.00",
+        "currency": "BRL",
+        "status": "paid",
+        "coupon": "ANA10",
+        "utms": {
+          "utm_content": "bruno"
+        }
+      },
+      "http_status": 201,
+      "response": {
+        "duplicate": false,
+        "order": {
+          "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "total_cents": 15000,
+          "currency": "BRL",
+          "coupon": "ANA10",
+          "utms": {
+            "utm_content": "bruno"
+          },
+          "status": "paid",
+          "received_at": "2026-10-09T19:42:35.624Z",
+          "attribution": {
+            "creator_id": "creator-ana",
+            "rule": "coupon",
+            "coupon_candidate": "creator-ana",
+            "utm_candidate": "creator-bruno",
+            "reason": "Cupom reconhecido prevalece sobre UTM de outro criador."
+          },
+          "refunded_cents": 3010,
+          "remaining_cents": 11990,
+          "gross_attributed_cents": 15000,
+          "net_attributed_cents": 11990,
+          "refunds": [
+            {
+              "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "type": "partial",
+              "currency": "BRL",
+              "amount_cents": 3010,
+              "sequence": 16,
+              "received_at": "2026-10-09T19:42:35.609Z",
+              "applied_at": "2026-10-09T19:42:35.624Z",
+              "state": "applied",
+              "requested_cents": 3010,
+              "applied_cents": 3010,
+              "unapplied_cents": 0,
+              "reason": "Estorno aplicado ao saldo disponível da venda."
+            }
+          ],
+          "history": [
+            {
+              "sequence": 16,
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "event": "refund_received",
+              "at": "2026-10-09T19:42:35.609Z",
+              "detail": {
+                "refund": {
+                  "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+                  "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                  "type": "partial",
+                  "currency": "BRL",
+                  "amount_cents": 3010
+                }
+              }
+            },
+            {
+              "sequence": 17,
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "event": "order_received",
+              "at": "2026-10-09T19:42:35.624Z",
+              "detail": {
+                "order": {
+                  "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                  "total_cents": 15000,
+                  "currency": "BRL",
+                  "coupon": "ANA10",
+                  "utms": {
+                    "utm_content": "bruno"
+                  },
+                  "status": "paid"
+                },
+                "attribution": {
+                  "creator_id": "creator-ana",
+                  "rule": "coupon",
+                  "coupon_candidate": "creator-ana",
+                  "utm_candidate": "creator-bruno",
+                  "reason": "Cupom reconhecido prevalece sobre UTM de outro criador."
+                }
+              }
+            },
+            {
+              "sequence": 18,
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "event": "refund_applied",
+              "at": "2026-10-09T19:42:35.624Z",
+              "detail": {
+                "refund_id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+                "requested_cents": 3010,
+                "applied_cents": 3010,
+                "unapplied_cents": 0,
+                "remaining_cents": 11990
+              }
+            }
+          ]
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": false,
+          "actual": false,
+          "passed": true
+        },
+        {
+          "field": "order.id",
+          "expected": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "order.total_cents",
+          "expected": 15000,
+          "actual": 15000,
+          "passed": true
+        },
+        {
+          "field": "order.attribution.creator_id",
+          "expected": "creator-ana",
+          "actual": "creator-ana",
+          "passed": true
+        },
+        {
+          "field": "order.attribution.rule",
+          "expected": "coupon",
+          "actual": "coupon",
+          "passed": true
+        },
+        {
+          "field": "order.attribution.coupon_candidate",
+          "expected": "creator-ana",
+          "actual": "creator-ana",
+          "passed": true
+        },
+        {
+          "field": "order.attribution.utm_candidate",
+          "expected": "creator-bruno",
+          "actual": "creator-bruno",
+          "passed": true
+        },
+        {
+          "field": "order.gross_attributed_cents",
+          "expected": 15000,
+          "actual": 15000,
+          "passed": true
+        },
+        {
+          "field": "order.refunded_cents",
+          "expected": 3010,
+          "actual": 3010,
+          "passed": true
+        },
+        {
+          "field": "order.net_attributed_cents",
+          "expected": 11990,
+          "actual": 11990,
+          "passed": true
+        },
+        {
+          "field": "order.refunds.length",
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        {
+          "field": "order.refunds.0.state",
+          "expected": "applied",
+          "actual": "applied",
+          "passed": true
+        },
+        {
+          "field": "order.history.length",
+          "expected": 3,
+          "actual": 3,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 12
+    },
+    {
+      "label": "Pedido repetido não gera uma segunda venda ou novo histórico",
+      "method": "POST",
+      "path": "/orders",
+      "request": {
+        "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "total": "150.00",
+        "currency": "BRL",
+        "status": "paid",
+        "coupon": "ANA10",
+        "utms": {
+          "utm_content": "bruno"
+        }
+      },
+      "http_status": 200,
+      "response": {
+        "duplicate": true,
+        "order": {
+          "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "total_cents": 15000,
+          "currency": "BRL",
+          "coupon": "ANA10",
+          "utms": {
+            "utm_content": "bruno"
+          },
+          "status": "paid",
+          "received_at": "2026-10-09T19:42:35.624Z",
+          "attribution": {
+            "creator_id": "creator-ana",
+            "rule": "coupon",
+            "coupon_candidate": "creator-ana",
+            "utm_candidate": "creator-bruno",
+            "reason": "Cupom reconhecido prevalece sobre UTM de outro criador."
+          },
+          "refunded_cents": 3010,
+          "remaining_cents": 11990,
+          "gross_attributed_cents": 15000,
+          "net_attributed_cents": 11990,
+          "refunds": [
+            {
+              "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "type": "partial",
+              "currency": "BRL",
+              "amount_cents": 3010,
+              "sequence": 16,
+              "received_at": "2026-10-09T19:42:35.609Z",
+              "applied_at": "2026-10-09T19:42:35.624Z",
+              "state": "applied",
+              "requested_cents": 3010,
+              "applied_cents": 3010,
+              "unapplied_cents": 0,
+              "reason": "Estorno aplicado ao saldo disponível da venda."
+            }
+          ],
+          "history": [
+            {
+              "sequence": 16,
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "event": "refund_received",
+              "at": "2026-10-09T19:42:35.609Z",
+              "detail": {
+                "refund": {
+                  "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+                  "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                  "type": "partial",
+                  "currency": "BRL",
+                  "amount_cents": 3010
+                }
+              }
+            },
+            {
+              "sequence": 17,
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "event": "order_received",
+              "at": "2026-10-09T19:42:35.624Z",
+              "detail": {
+                "order": {
+                  "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                  "total_cents": 15000,
+                  "currency": "BRL",
+                  "coupon": "ANA10",
+                  "utms": {
+                    "utm_content": "bruno"
+                  },
+                  "status": "paid"
+                },
+                "attribution": {
+                  "creator_id": "creator-ana",
+                  "rule": "coupon",
+                  "coupon_candidate": "creator-ana",
+                  "utm_candidate": "creator-bruno",
+                  "reason": "Cupom reconhecido prevalece sobre UTM de outro criador."
+                }
+              }
+            },
+            {
+              "sequence": 18,
+              "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+              "event": "refund_applied",
+              "at": "2026-10-09T19:42:35.624Z",
+              "detail": {
+                "refund_id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+                "requested_cents": 3010,
+                "applied_cents": 3010,
+                "unapplied_cents": 0,
+                "remaining_cents": 11990
+              }
+            }
+          ]
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "field": "order.id",
+          "expected": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "order.net_attributed_cents",
+          "expected": 11990,
+          "actual": 11990,
+          "passed": true
+        },
+        {
+          "field": "order.refunds.length",
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        {
+          "field": "order.history.length",
+          "expected": 3,
+          "actual": 3,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 4
+    },
+    {
+      "label": "A venda atribuída à Ana não aumenta nenhum total de Bruno",
+      "method": "GET",
+      "path": "/creators/creator-bruno/sales",
+      "http_status": 200,
+      "response": {
+        "creator_id": "creator-bruno",
+        "currency": "BRL",
+        "order_count": 0,
+        "gross_cents": "0",
+        "refunded_cents": "0",
+        "net_cents": "0",
+        "orders": []
+      },
+      "checks": [
+        {
+          "field": "gross_cents",
+          "expected": "0",
+          "actual": "0",
+          "passed": true
+        },
+        {
+          "field": "refunded_cents",
+          "expected": "0",
+          "actual": "0",
+          "passed": true
+        },
+        {
+          "field": "net_cents",
+          "expected": "0",
+          "actual": "0",
+          "passed": true
+        },
+        {
+          "field": "order_count",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 3
+    },
+    {
+      "label": "Repetir o parcial aplicado não desconta R$30,10 novamente",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "amount": "30.10"
+      },
+      "http_status": 200,
+      "response": {
+        "duplicate": true,
+        "refund": {
+          "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 3010,
+          "sequence": 16,
+          "received_at": "2026-10-09T19:42:35.609Z",
+          "applied_at": "2026-10-09T19:42:35.624Z",
+          "state": "applied",
+          "requested_cents": 3010,
+          "applied_cents": 3010,
+          "unapplied_cents": 0,
+          "reason": "Estorno aplicado ao saldo disponível da venda."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "field": "refund.id",
+          "expected": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.state",
+          "expected": "applied",
+          "actual": "applied",
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 3010,
+          "actual": 3010,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 4
+    },
+    {
+      "label": "Estorno integral reverte somente o saldo restante de R$119,90",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "type": "full"
+      },
+      "http_status": 201,
+      "response": {
+        "duplicate": false,
+        "refund": {
+          "id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "full",
+          "currency": "BRL",
+          "amount_cents": null,
+          "sequence": 19,
+          "received_at": "2026-10-09T19:42:35.648Z",
+          "applied_at": "2026-10-09T19:42:35.648Z",
+          "state": "applied",
+          "requested_cents": 11990,
+          "applied_cents": 11990,
+          "unapplied_cents": 0,
+          "reason": "Estorno aplicado ao saldo disponível da venda."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": false,
+          "actual": false,
+          "passed": true
+        },
+        {
+          "field": "refund.id",
+          "expected": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.type",
+          "expected": "full",
+          "actual": "full",
+          "passed": true
+        },
+        {
+          "field": "refund.requested_cents",
+          "expected": 11990,
+          "actual": 11990,
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 11990,
+          "actual": 11990,
+          "passed": true
+        },
+        {
+          "field": "refund.unapplied_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "refund.state",
+          "expected": "applied",
+          "actual": "applied",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 7
+    },
+    {
+      "label": "Estorno integral repetido devolve a aplicação original",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "type": "full"
+      },
+      "http_status": 200,
+      "response": {
+        "duplicate": true,
+        "refund": {
+          "id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "full",
+          "currency": "BRL",
+          "amount_cents": null,
+          "sequence": 19,
+          "received_at": "2026-10-09T19:42:35.648Z",
+          "applied_at": "2026-10-09T19:42:35.648Z",
+          "state": "applied",
+          "requested_cents": 11990,
+          "applied_cents": 11990,
+          "unapplied_cents": 0,
+          "reason": "Estorno aplicado ao saldo disponível da venda."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "field": "refund.id",
+          "expected": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.sequence",
+          "expected": 19,
+          "actual": 19,
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 11990,
+          "actual": 11990,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 4
+    },
+    {
+      "label": "Novo estorno sobre saldo zerado registra o excedente sem receita negativa",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "amount": "10.00"
+      },
+      "http_status": 201,
+      "response": {
+        "duplicate": false,
+        "refund": {
+          "id": "53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 1000,
+          "sequence": 21,
+          "received_at": "2026-10-09T19:42:35.659Z",
+          "applied_at": "2026-10-09T19:42:35.659Z",
+          "state": "capped",
+          "requested_cents": 1000,
+          "applied_cents": 0,
+          "unapplied_cents": 1000,
+          "reason": "Valor limitado ao saldo da venda; excedente registrado sem gerar receita negativa."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": false,
+          "actual": false,
+          "passed": true
+        },
+        {
+          "field": "refund.state",
+          "expected": "capped",
+          "actual": "capped",
+          "passed": true
+        },
+        {
+          "field": "refund.requested_cents",
+          "expected": 1000,
+          "actual": 1000,
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "refund.unapplied_cents",
+          "expected": 1000,
+          "actual": 1000,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 10
+    },
+    {
+      "label": "Replay do excedente também é idempotente",
+      "method": "POST",
+      "path": "/refunds",
+      "request": {
+        "id": "53720999-ace9-4c32-abae-63e99a77e623",
+        "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "amount": "10.00"
+      },
+      "http_status": 200,
+      "response": {
+        "duplicate": true,
+        "refund": {
+          "id": "53720999-ace9-4c32-abae-63e99a77e623",
+          "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "type": "partial",
+          "currency": "BRL",
+          "amount_cents": 1000,
+          "sequence": 21,
+          "received_at": "2026-10-09T19:42:35.659Z",
+          "applied_at": "2026-10-09T19:42:35.659Z",
+          "state": "capped",
+          "requested_cents": 1000,
+          "applied_cents": 0,
+          "unapplied_cents": 1000,
+          "reason": "Valor limitado ao saldo da venda; excedente registrado sem gerar receita negativa."
+        }
+      },
+      "checks": [
+        {
+          "field": "duplicate",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "field": "refund.id",
+          "expected": "53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "refund.state",
+          "expected": "capped",
+          "actual": "capped",
+          "passed": true
+        },
+        {
+          "field": "refund.applied_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "refund.unapplied_cents",
+          "expected": 1000,
+          "actual": 1000,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 3
+    },
+    {
+      "label": "Mesmo ID com outro valor é recusado sem sobrescrever a venda",
+      "method": "POST",
+      "path": "/orders",
+      "request": {
+        "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "total": "151.00",
+        "currency": "BRL",
+        "status": "paid",
+        "coupon": "ANA10",
+        "utms": {
+          "utm_content": "bruno"
+        }
+      },
+      "http_status": 409,
+      "response": {
+        "error": {
+          "code": "idempotency_conflict",
+          "message": "Este ID de pedido já existe com outro payload."
+        }
+      },
+      "checks": [
+        {
+          "field": "error.code",
+          "expected": "idempotency_conflict",
+          "actual": "idempotency_conflict",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 4
+    },
+    {
+      "label": "Auditoria conserva a venda, três estornos e sete eventos; saldo final zero",
+      "method": "GET",
+      "path": "/orders/order1-53720999-ace9-4c32-abae-63e99a77e623",
+      "http_status": 200,
+      "response": {
+        "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+        "total_cents": 15000,
+        "currency": "BRL",
+        "coupon": "ANA10",
+        "utms": {
+          "utm_content": "bruno"
+        },
+        "status": "paid",
+        "received_at": "2026-10-09T19:42:35.624Z",
+        "attribution": {
+          "creator_id": "creator-ana",
+          "rule": "coupon",
+          "coupon_candidate": "creator-ana",
+          "utm_candidate": "creator-bruno",
+          "reason": "Cupom reconhecido prevalece sobre UTM de outro criador."
+        },
+        "refunded_cents": 15000,
+        "remaining_cents": 0,
+        "gross_attributed_cents": 15000,
+        "net_attributed_cents": 0,
+        "refunds": [
+          {
+            "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "type": "partial",
+            "currency": "BRL",
+            "amount_cents": 3010,
+            "sequence": 16,
+            "received_at": "2026-10-09T19:42:35.609Z",
+            "applied_at": "2026-10-09T19:42:35.624Z",
+            "state": "applied",
+            "requested_cents": 3010,
+            "applied_cents": 3010,
+            "unapplied_cents": 0,
+            "reason": "Estorno aplicado ao saldo disponível da venda."
+          },
+          {
+            "id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "type": "full",
+            "currency": "BRL",
+            "amount_cents": null,
+            "sequence": 19,
+            "received_at": "2026-10-09T19:42:35.648Z",
+            "applied_at": "2026-10-09T19:42:35.648Z",
+            "state": "applied",
+            "requested_cents": 11990,
+            "applied_cents": 11990,
+            "unapplied_cents": 0,
+            "reason": "Estorno aplicado ao saldo disponível da venda."
+          },
+          {
+            "id": "53720999-ace9-4c32-abae-63e99a77e623",
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "type": "partial",
+            "currency": "BRL",
+            "amount_cents": 1000,
+            "sequence": 21,
+            "received_at": "2026-10-09T19:42:35.659Z",
+            "applied_at": "2026-10-09T19:42:35.659Z",
+            "state": "capped",
+            "requested_cents": 1000,
+            "applied_cents": 0,
+            "unapplied_cents": 1000,
+            "reason": "Valor limitado ao saldo da venda; excedente registrado sem gerar receita negativa."
+          }
+        ],
+        "history": [
+          {
+            "sequence": 16,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "refund_received",
+            "at": "2026-10-09T19:42:35.609Z",
+            "detail": {
+              "refund": {
+                "id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+                "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                "type": "partial",
+                "currency": "BRL",
+                "amount_cents": 3010
+              }
+            }
+          },
+          {
+            "sequence": 17,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "order_received",
+            "at": "2026-10-09T19:42:35.624Z",
+            "detail": {
+              "order": {
+                "id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                "total_cents": 15000,
+                "currency": "BRL",
+                "coupon": "ANA10",
+                "utms": {
+                  "utm_content": "bruno"
+                },
+                "status": "paid"
+              },
+              "attribution": {
+                "creator_id": "creator-ana",
+                "rule": "coupon",
+                "coupon_candidate": "creator-ana",
+                "utm_candidate": "creator-bruno",
+                "reason": "Cupom reconhecido prevalece sobre UTM de outro criador."
+              }
+            }
+          },
+          {
+            "sequence": 18,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "refund_applied",
+            "at": "2026-10-09T19:42:35.624Z",
+            "detail": {
+              "refund_id": "refund1-53720999-ace9-4c32-abae-63e99a77e623",
+              "requested_cents": 3010,
+              "applied_cents": 3010,
+              "unapplied_cents": 0,
+              "remaining_cents": 11990
+            }
+          },
+          {
+            "sequence": 19,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "refund_received",
+            "at": "2026-10-09T19:42:35.648Z",
+            "detail": {
+              "refund": {
+                "id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+                "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                "type": "full",
+                "currency": "BRL",
+                "amount_cents": null
+              }
+            }
+          },
+          {
+            "sequence": 20,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "refund_applied",
+            "at": "2026-10-09T19:42:35.648Z",
+            "detail": {
+              "refund_id": "refund2-53720999-ace9-4c32-abae-63e99a77e623",
+              "requested_cents": 11990,
+              "applied_cents": 11990,
+              "unapplied_cents": 0,
+              "remaining_cents": 0
+            }
+          },
+          {
+            "sequence": 21,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "refund_received",
+            "at": "2026-10-09T19:42:35.659Z",
+            "detail": {
+              "refund": {
+                "id": "53720999-ace9-4c32-abae-63e99a77e623",
+                "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+                "type": "partial",
+                "currency": "BRL",
+                "amount_cents": 1000
+              }
+            }
+          },
+          {
+            "sequence": 22,
+            "order_id": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+            "event": "refund_applied",
+            "at": "2026-10-09T19:42:35.659Z",
+            "detail": {
+              "refund_id": "53720999-ace9-4c32-abae-63e99a77e623",
+              "requested_cents": 1000,
+              "applied_cents": 0,
+              "unapplied_cents": 1000,
+              "remaining_cents": 0
+            }
+          }
+        ]
+      },
+      "checks": [
+        {
+          "field": "id",
+          "expected": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "actual": "order1-53720999-ace9-4c32-abae-63e99a77e623",
+          "passed": true
+        },
+        {
+          "field": "total_cents",
+          "expected": 15000,
+          "actual": 15000,
+          "passed": true
+        },
+        {
+          "field": "attribution.creator_id",
+          "expected": "creator-ana",
+          "actual": "creator-ana",
+          "passed": true
+        },
+        {
+          "field": "refunded_cents",
+          "expected": 15000,
+          "actual": 15000,
+          "passed": true
+        },
+        {
+          "field": "remaining_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "net_attributed_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "refunds.length",
+          "expected": 3,
+          "actual": 3,
+          "passed": true
+        },
+        {
+          "field": "refunds.0.applied_cents",
+          "expected": 3010,
+          "actual": 3010,
+          "passed": true
+        },
+        {
+          "field": "refunds.1.applied_cents",
+          "expected": 11990,
+          "actual": 11990,
+          "passed": true
+        },
+        {
+          "field": "refunds.2.applied_cents",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "field": "refunds.2.state",
+          "expected": "capped",
+          "actual": "capped",
+          "passed": true
+        },
+        {
+          "field": "history.length",
+          "expected": 7,
+          "actual": 7,
+          "passed": true
+        },
+        {
+          "field": "history.0.event",
+          "expected": "refund_received",
+          "actual": "refund_received",
+          "passed": true
+        },
+        {
+          "field": "history.1.event",
+          "expected": "order_received",
+          "actual": "order_received",
+          "passed": true
+        },
+        {
+          "field": "history.2.event",
+          "expected": "refund_applied",
+          "actual": "refund_applied",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 4
+    }
+  ]
+}

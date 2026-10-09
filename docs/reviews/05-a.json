@@ -1,0 +1,85 @@
+{
+  "challenge": "vendas-shopify",
+  "reviewer": "/root/implementar_roteiro",
+  "independence": "Este agente não implementou nem alterou o código de vendas; implementou somente revisão de roteiro e revisou repasses.",
+  "axis": "Requisitos financeiros, atribuição única, cupom contra UTM, idempotência, parcial/full e estorno antes do pedido",
+  "base_sha": "ac5f7fe3a70c4e371b987d9317a5f29ffeed1d18",
+  "reviewed_sha": "efb062a3f54d27eaa2bcbf742418692c298d50e5",
+  "runtime": "Node v22.23.3",
+  "read": [
+    "docs/enunciado.txt",
+    "README.md",
+    "package.json",
+    "src/attribution.js",
+    "src/validation.js",
+    "src/sales-service.js",
+    "src/repository.js",
+    "src/http.js",
+    "src/server.js",
+    "src/errors.js",
+    "scripts/demo.js",
+    "test/sales.test.js",
+    "test/http.test.js"
+  ],
+  "commands": [
+    {
+      "command": "npm test (Node22)",
+      "result": "pass",
+      "details": "28 testes verdes; exit0"
+    },
+    {
+      "command": "git diff --check ANTIGO_CANDIDATO...NOVO_CANDIDATO; git status --porcelain; git rev-parse HEAD",
+      "result": "pass",
+      "details": "Delta limpo e checkout sem alterações no SHA efb062a3f54d27eaa2bcbf742418692c298d50e5"
+    },
+    {
+      "command": "node --input-type=module; servidor HTTP ephemeral real, bodies literais e assertions próprias",
+      "result": "pass",
+      "details": [
+        "total NUMBER90071992547409.91 ->400 unsafe_numeric_amount; recurso não criado",
+        "amount NUMBER90071992547409.91 ->400 unsafe_numeric_amount; saldo e histórico permanecem anteriores",
+        "total string90071992547409.91 ->201 com9007199254740991cent; replay total_cents9007199254740991 ->200 duplicate:true e um evento",
+        "amount string90071992547409.91 ->201 com9007199254740991cent; replay amount_cents9007199254740991 ->200, saldo0 e histórico3",
+        "total NUMBER35184372088831.99 abaixo da borda ->201 com3518437208883199cent; NUMBER35184372088832 ->400 e string equivalente ->201 exato",
+        "total e amount NUMBER0.29 ->201,29cent em ambos",
+        "Cupom Ana contra UTM Bruno no pedido exato conserva atribuição somente a Ana"
+      ]
+    },
+    {
+      "command": "node --input-type=module; oracle independente BigInt",
+      "result": "pass",
+      "details": "2.000 lexemas decimais de centavos adjacentes abaixo de2^45, parseados como NUMBER; normalizeOrder e normalizeRefund conferidos separadamente contra centavos inteiros exatos"
+    }
+  ],
+  "findings": [],
+  "verdict": "pass",
+  "conclusion": "Delta financeiro fecha a perda silenciosa de centavos. 28 testes e reproduções HTTP independentes passam; números inseguros falham antes de publicar qualquer estado, alternativas exatas continuam idempotentes e borda admitida conferida em2.000 valores para pedidos/estornos. Parecer anterior arquivado para rastrear o P2.",
+  "limitations": [
+    "Ambiente local, dados fictícios e um processo por arquivo, como documentado.",
+    "Persistência multiprocesso, assinatura Shopify e atualizações do ciclo de pagamento não foram inventadas como requisitos adicionais.",
+    "Este relatório não altera código, não publica nem envia entrega."
+  ],
+  "delta_from_sha": "65eda7e3ce907c18652cc587373dc8135dda7218",
+  "previous_report": "05-a-anterior.json",
+  "resolved_findings": [
+    {
+      "priority": "P2",
+      "kind": "requirement",
+      "requires_fix_for_challenge": true,
+      "file": "src/validation.js",
+      "line": 27,
+      "related_file": "src/http.js",
+      "related_line": 21,
+      "title": "Decimal numérico grande perde centavos antes da conversão BigInt",
+      "details": "A API documenta total/amount como string ou número JSON com até duas casas, dentro do teto seguro de centavos. JSON.parse já arredonda alguns números decimais perto do teto antes de decimal() chamar String(value). O BigInt posterior mantém o valor arredondado, não o valor recebido no corpo. Assim pedido e estorno são aceitos com um centavo a menos, e replays equivalentes número/string podem virar conflitos. Exigir uma representação sem perda para estes valores preserva a precisão financeira anunciada.",
+      "reproduction": [
+        "Servidor com arquivo novo: POST /orders com corpo literal {\"id\":\"http-number\",\"total\":90071992547409.91,\"status\":\"paid\",\"coupon\":\"ANA10\"} devolve 201 e total_cents:9007199254740990",
+        "POST /orders com {\"id\":\"http-string\",\"total\":\"90071992547409.91\",\"status\":\"paid\",\"coupon\":\"ANA10\"} devolve 201 e total_cents:9007199254740991",
+        "POST /refunds com corpo literal {\"id\":\"http-refund\",\"order_id\":\"http-string\",\"amount\":90071992547409.91} devolve 201 e applied_cents:9007199254740990, deixando um centavo apesar de o valor literal igualar a venda"
+      ],
+      "expected": "Registrar exatamente 9007199254740991 centavos ou rejeitar o decimal numérico inseguro com erro claro e exigir string/inteiro de centavos.",
+      "suggestion": "Defina e documente um limite conservador para decimal NUMBER que evite ambiguidade de centavos; acima dele exija string ou total_cents/amount_cents. Outra opção é preservar/validar o lexema numérico do JSON antes de convertê-lo. Cubra tanto total quanto amount e confirme que entradas normais como 0.29 continuam exatas.",
+      "resolution": "P2 fechado: NUMBER em reais >=2^45 rejeitado em pedidos e estornos com400 unsafe_numeric_amount, limite conservador explicado no README; string/centavos mantêm intervalo seguro e replay equivalente. Confirmado por sondagens HTTP e oracle de borda independentes."
+    }
+  ]
+}

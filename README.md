@@ -108,4 +108,6 @@ Essa persistência foi escolhida para tornar a entrega executável sem infraestr
 
 A [verificação de precisão por HTTP](docs/evidence/money-precision.json) preserva os corpos literais recebidos e as seis respostas: rejeição do NUMBER grande no pedido/estorno, aceitação exata da string e replay equivalente em centavos. A revisão independente identificou essa perda potencial antes do envio, e a implementação passou a exigir uma representação segura nessa faixa.
 
-Implementação, testes, documentação e análise local foram feitos com IA Codex. Os testes foram executados em Node.js 22. A revisão por agentes independentes será registrada separadamente antes do envio; este texto não afirma revisão humana nem integração com uma loja real.
+Codex produziu código, testes e documentação. Dois agentes Codex independentes do implementador revisaram o commit `efb062a3f54d27eaa2bcbf742418692c298d50e5` e liberaram a entrega após testes e sondagens próprias. Os pareceres completos estão em `docs/reviews/`. O coordenador conferiu a instalação e os testes em checkout isolado e registrou o fluxo HTTP real. Não foi realizada revisão humana do código. A validação usa dados sintéticos e ambiente local; limites e interpretações do contrato estão documentados.
+
+[Verificação final, revisões independentes e captura do fluxo real](docs/verificacao-final.md).

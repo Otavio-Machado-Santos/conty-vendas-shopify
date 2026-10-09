@@ -1,0 +1,89 @@
+{
+  "reviewed_sha": "65eda7e3ce907c18652cc587373dc8135dda7218",
+  "base_sha": "ac5f7fe3a70c4e371b987d9317a5f29ffeed1d18",
+  "reviewer": "Codex independent reviewer B (/root/implementar_video)",
+  "reviewed_at": "2026-10-09T19:10:06.371642+00:00",
+  "runtime": "v22.23.3",
+  "axis": "precisão e overflow monetário, inputs/status, idempotência conflitante, pendências/restart, capping/histórico, concorrência e falha de persistência",
+  "contract_sources": [
+    "docs/enunciado.txt",
+    "README.md",
+    "test/sales.test.js",
+    "test/http.test.js"
+  ],
+  "commands": [
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "26/26 testes passaram"
+    },
+    {
+      "command": "node /tmp/conty-sales-review-b.mjs",
+      "exit_code": 0,
+      "result": "5 sondagens independentes passaram",
+      "probes": [
+        {
+          "probe": "inteiros monetários seguros e agregação acima do limite sem overflow",
+          "passed": true,
+          "gross": "45035996273704955",
+          "net": "36028797018963964",
+          "invalidInputsRejected": 11
+        },
+        {
+          "probe": "três estornos antes do pedido e dois reinícios preservam ordem, caps, IDs e histórico",
+          "passed": true,
+          "applied": [
+            7000,
+            8000,
+            0
+          ],
+          "historyEvents": 7,
+          "conflictsRejected": 2
+        },
+        {
+          "probe": "falha real do filesystem mantém bytes antigos e estado; retry aplica pendência",
+          "passed": true,
+          "unchangedFile": true,
+          "pendingPreserved": true,
+          "netAfterRetry": 14900
+        },
+        {
+          "probe": "80 estornos distintos com 80 retries respeitam soma máxima e histórico",
+          "passed": true,
+          "refundedCents": 1729,
+          "historyEvents": 161
+        },
+        {
+          "probe": "110 requisições HTTP simultâneas serializam duplicados e estornos distintos",
+          "passed": true,
+          "orderCreated": 1,
+          "orderReplayed": 49,
+          "refundCreated": 20,
+          "refundReplayed": 40,
+          "refundedCents": 15000
+        }
+      ]
+    },
+    {
+      "command": "git rev-parse HEAD; git status --short; git diff --check",
+      "exit_code": 0,
+      "result": "SHA fixo preservado; árvore limpa; nenhum código editado"
+    }
+  ],
+  "findings": [],
+  "reasoning": [
+    "Conversão decimal usa BigInt e exige limites seguros; total agregado usa BigInt string. Cinco vendas individuais no MAX_SAFE_INTEGER não perdem precisão na soma.",
+    "ID igual com payload diferente é 409 e não altera atribuição, valor, destino nem histórico; replays equivalentes retornam o estado sem novos eventos.",
+    "Pendências sobrevivem ao arquivo e a dois reinícios. Estorno parcial, full e excedente são aplicados pela sequência de chegada e ficam rastreáveis.",
+    "O cap usa saldo restante; oitenta estornos com oitenta retries mantiveram soma máxima, saldo não negativo e exatamente os eventos esperados.",
+    "Falha real na criação do arquivo temporário manteve bytes persistidos e estado em memória anteriores. Retry posterior aplicou a pendência e sobreviveu ao reinício.",
+    "Cento e dez requisições HTTP simultâneas produziram uma venda e vinte estornos únicos; replays e excesso não aumentaram o total além da venda.",
+    "AttributionPolicy.decide é o único lugar de decisão de criador e explicita cupom versus UTM, mantendo no máximo um beneficiário."
+  ],
+  "limits": [
+    "Foi validada concorrência dentro de um processo; compartilhamento de arquivo por múltiplos processos está explicitamente fora do contrato de persistência do README.",
+    "Falha de gravação e reinício normal foram exercitados. Corte abrupto de energia e comportamento de filesystem remoto não foram testados e não são critérios exigidos no desafio.",
+    "Não houve integração com Shopify real, assinatura de webhook ou atribuição a criador real; o enunciado permite provedor simulado."
+  ],
+  "verdict": "pass"
+}

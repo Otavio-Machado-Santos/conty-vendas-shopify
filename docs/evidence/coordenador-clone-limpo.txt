@@ -1,0 +1,192 @@
+Checkout isolado de efb062a3f54d27eaa2bcbf742418692c298d50e5; sem arquivos não versionados, node_modules ou dados locais.
+$ node --version
+v22.23.3
+
+exit_code: 0
+
+$ npm test
+
+> conty-vendas-shopify@1.0.0 test
+> node --test
+
+TAP version 13
+# Subtest: fluxo HTTP real: pendência, pedido, duplicados, estorno full e consulta auditável
+ok 1 - fluxo HTTP real: pendência, pedido, duplicados, estorno full e consulta auditável
+  ---
+  duration_ms: 147.569916
+  type: 'test'
+  ...
+# Subtest: HTTP erros de contrato, conflitos, método e rotas são explícitos
+ok 2 - HTTP erros de contrato, conflitos, método e rotas são explícitos
+  ---
+  duration_ms: 29.859041
+  type: 'test'
+  ...
+# Subtest: HTTP rejeita JSON inválido, media type e corpo acima do limite
+ok 3 - HTTP rejeita JSON inválido, media type e corpo acima do limite
+  ---
+  duration_ms: 8.4785
+  type: 'test'
+  ...
+# Subtest: requisições concorrentes com mesmo ID mantêm uma única venda e único estorno
+ok 4 - requisições concorrentes com mesmo ID mantêm uma única venda e único estorno
+  ---
+  duration_ms: 55.3475
+  type: 'test'
+  ...
+# Subtest: HTTP falha de persistência responde 500 sem creditar pedido
+ok 5 - HTTP falha de persistência responde 500 sem creditar pedido
+  ---
+  duration_ms: 8.94825
+  type: 'test'
+  ...
+# Subtest: HTTP literal decimal grande é rejeitado; string e inteiro em centavos são exatos e equivalentes
+ok 6 - HTTP literal decimal grande é rejeitado; string e inteiro em centavos são exatos e equivalentes
+  ---
+  duration_ms: 15.276667
+  type: 'test'
+  ...
+# Subtest: cupom reconhecido vence UTM diferente, com ambos os candidatos auditáveis
+ok 7 - cupom reconhecido vence UTM diferente, com ambos os candidatos auditáveis
+  ---
+  duration_ms: 5.112125
+  type: 'test'
+  ...
+# Subtest: a política de atribuição isolada permite mappings substituíveis
+ok 8 - a política de atribuição isolada permite mappings substituíveis
+  ---
+  duration_ms: 0.1295
+  type: 'test'
+  ...
+# Subtest: UTM conhecido atribui quando cupom ausente ou desconhecido; sem ambos é orgânico
+ok 9 - UTM conhecido atribui quando cupom ausente ou desconhecido; sem ambos é orgânico
+  ---
+  duration_ms: 1.477416
+  type: 'test'
+  ...
+# Subtest: repetir pedido não duplica receita nem histórico; equivalência usa payload normalizado
+ok 10 - repetir pedido não duplica receita nem histórico; equivalência usa payload normalizado
+  ---
+  duration_ms: 0.354
+  type: 'test'
+  ...
+# Subtest: pedido com mesmo ID e outro total, status ou atribuição é conflito e não altera original
+ok 11 - pedido com mesmo ID e outro total, status ou atribuição é conflito e não altera original
+  ---
+  duration_ms: 0.677083
+  type: 'test'
+  ...
+# Subtest: estorno parcial reverte somente seu valor; repetição não estorna novamente
+ok 12 - estorno parcial reverte somente seu valor; repetição não estorna novamente
+  ---
+  duration_ms: 3.515416
+  type: 'test'
+  ...
+# Subtest: estorno completo após parcial zera atribuição sem apagar eventos anteriores
+ok 13 - estorno completo após parcial zera atribuição sem apagar eventos anteriores
+  ---
+  duration_ms: 1.426042
+  type: 'test'
+  ...
+# Subtest: estorno anterior ao pedido fica pendente e é aplicado sem perder recebimento original
+ok 14 - estorno anterior ao pedido fica pendente e é aplicado sem perder recebimento original
+  ---
+  duration_ms: 0.584458
+  type: 'test'
+  ...
+# Subtest: estorno full antes do pedido consome o saldo quando pedido é conhecido
+ok 15 - estorno full antes do pedido consome o saldo quando pedido é conhecido
+  ---
+  duration_ms: 1.220333
+  type: 'test'
+  ...
+# Subtest: múltiplos estornos pendentes são aplicados na ordem de chegada, mesmo com relógio empatado
+ok 16 - múltiplos estornos pendentes são aplicados na ordem de chegada, mesmo com relógio empatado
+  ---
+  duration_ms: 2.497875
+  type: 'test'
+  ...
+# Subtest: estorno excedente é limitado; novo estorno sobre saldo zerado registra aplicação zero
+ok 17 - estorno excedente é limitado; novo estorno sobre saldo zerado registra aplicação zero
+  ---
+  duration_ms: 1.113791
+  type: 'test'
+  ...
+# Subtest: ID de estorno não pode mudar pedido, valor ou tipo
+ok 18 - ID de estorno não pode mudar pedido, valor ou tipo
+  ---
+  duration_ms: 0.889209
+  type: 'test'
+  ...
+# Subtest: centavos são exatos, incluindo 0.29, limite seguro e somas que ultrapassam Number.MAX_SAFE_INTEGER
+ok 19 - centavos são exatos, incluindo 0.29, limite seguro e somas que ultrapassam Number.MAX_SAFE_INTEGER
+  ---
+  duration_ms: 0.774792
+  type: 'test'
+  ...
+# Subtest: decimal NUMBER exige margem IEEE-754; string e centavos preservam todo o intervalo seguro
+ok 20 - decimal NUMBER exige margem IEEE-754; string e centavos preservam todo o intervalo seguro
+  ---
+  duration_ms: 5.152834
+  type: 'test'
+  ...
+# Subtest: pagamento pending/cancelled não gera receita, mesmo com atribuição conhecida
+ok 21 - pagamento pending/cancelled não gera receita, mesmo com atribuição conhecida
+  ---
+  duration_ms: 0.162209
+  type: 'test'
+  ...
+# Subtest: pedidos de dois criadores e orgânico preservam isolamento dos totais
+ok 22 - pedidos de dois criadores e orgânico preservam isolamento dos totais
+  ---
+  duration_ms: 0.66575
+  type: 'test'
+  ...
+# Subtest: validações rejeitam dinheiro ambíguo, inválido, moeda/status/UTM/IDs inesperados sem mutação
+ok 23 - validações rejeitam dinheiro ambíguo, inválido, moeda/status/UTM/IDs inesperados sem mutação
+  ---
+  duration_ms: 0.971458
+  type: 'test'
+  ...
+# Subtest: contrato total_cents e amount_cents dispensa decimal sem alterar cálculos
+ok 24 - contrato total_cents e amount_cents dispensa decimal sem alterar cálculos
+  ---
+  duration_ms: 0.597875
+  type: 'test'
+  ...
+# Subtest: arquivo persistente conserva pendências, idempotência e histórico após reinício
+ok 25 - arquivo persistente conserva pendências, idempotência e histórico após reinício
+  ---
+  duration_ms: 22.973292
+  type: 'test'
+  ...
+# Subtest: arquivo corrompido falha fechado e nunca é substituído automaticamente
+ok 26 - arquivo corrompido falha fechado e nunca é substituído automaticamente
+  ---
+  duration_ms: 2.03275
+  type: 'test'
+  ...
+# Subtest: falha ao persistir não publica estado parcialmente aplicado
+ok 27 - falha ao persistir não publica estado parcialmente aplicado
+  ---
+  duration_ms: 0.480125
+  type: 'test'
+  ...
+# Subtest: sequência determinística de muitos estornos sempre mantém 0 <= soma <= venda
+ok 28 - sequência determinística de muitos estornos sempre mantém 0 <= soma <= venda
+  ---
+  duration_ms: 272.673792
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 436.678166
+
+exit_code: 0
+
